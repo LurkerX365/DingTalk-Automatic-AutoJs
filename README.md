@@ -9,7 +9,7 @@
 `https://pro.autojs.org/`
 ### 2.脚本配置
 ```
-corpId 公司在钉钉内的 CorpID 字符串，如果你想不到办法找到它，不建议使用此脚本
+corpId 公司在钉钉内的 CorpID 字符串，如果你想不到办法找到它，建议不使用此脚本
 minNum 随机时间中的最小分钟数
 maxNum 随机时间中的最大分钟数
 phoneNo 登录钉钉用的手机号
