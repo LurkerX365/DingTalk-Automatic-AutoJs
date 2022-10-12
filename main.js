@@ -48,6 +48,7 @@ function randomSleep() {
 
 //应用启动器
 function startDing() {
+    toastLog("正在启动钉钉");
     var launch = app.launch(packageDT);
     if(launch) {
         sleep(5000);
@@ -128,8 +129,6 @@ if(dateDecide() !== "工作日") {
 }
 
 //启动钉钉
-toastLog("正在启动钉钉");
-sleep(1000);
 startDing();
 
 //自动登录
