@@ -146,7 +146,7 @@ doClockBut();
 //打卡后返回桌面
 toastLog("结束钉钉任务");
 sleep(1000);
-id("close_layout").findOne(1000).click();
+id("close_text").findOne(1000).click();
 sleep(1000);
 home();
 sleep(1000);
