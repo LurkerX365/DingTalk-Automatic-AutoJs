@@ -12,13 +12,13 @@ const passWd = "xxxxxxxxxxx";
 
 /*====================功能函数====================*/
 
-//获取并格式化当前日期
+//获取并格式化当前日期到yyyymmdd
 function getNowFormatDay() {
     var nowDate = new Date();
-    var day = nowDate.getDate();
-    var month = nowDate.getMonth() + 1;
-    var year = nowDate.getFullYear();
-    var format = year + "" + month + "" + day + "";
+    var day = (nowDate.getDate()).toString().padStart(2, '0');
+    var month = (nowDate.getMonth() + 1).toString().padStart(2, '0');
+    var year = (nowDate.getFullYear()).toString();
+    var format = year + month + day;
     return format;
 }
 
