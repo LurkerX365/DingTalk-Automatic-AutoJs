@@ -12,7 +12,7 @@ const passWd = "xxxxxxxxxxx";
 
 /*====================功能函数====================*/
 
-//获取并格式化当前日期到yyyymmdd
+//获取并格式化当前日期
 function getNowFormatDay() {
     var nowDate = new Date();
     var day = (nowDate.getDate()).toString().padStart(2, '0');
@@ -22,7 +22,7 @@ function getNowFormatDay() {
     return format;
 }
 
-//日期属性判断
+//节假日判断器
 function dateDecide() {
     var nowDay = getNowFormatDay();
     var date = nowDay;
@@ -32,6 +32,7 @@ function dateDecide() {
     var apiMag = res.body.json()["msg"];
     if(apiStatus !== 0) {
         toastLog("请求失败: " + apiMag);
+        exit();
     } else {
         return isHoliday;
     }
@@ -43,15 +44,32 @@ function randomSleep() {
     toastLog("随机延迟" + randNum + "分钟");
     sleep(randNum * 60 * 1000);
     toastLog("随机延迟结束尝试打卡");
-    sleep(1000);
+}
+
+//条件检查器
+function preCheck() {
+    auto.waitFor("normal");
+    if(dateDecide() !== "工作日") {
+        toastLog("今天不用上班啦");
+        sleep(1000);
+        exit();
+    } else {
+        (!device.isScreenOn()) {
+            device.wakeUp();
+            device.keepScreenOn(900 * 1000);
+            swipe(500, 2000, 500, 1000, 220);
+            sleep(1000);
+            home();
+        }
+    }
 }
 
 //应用启动器
 function startDing() {
-    toastLog("正在启动钉钉");
     var launch = app.launch(packageDT);
     if(launch) {
-        sleep(5000);
+        sleep(6000);
+        toastLog("正在启动钉钉");
     } else {
         toastLog("钉钉启动失败");
         exit();
@@ -69,8 +87,13 @@ function signIn() {
         id("cb_privacy").findOne().click();
         toastLog("已同意隐私协议");
         id("btn_next").findOne().click();
-        toastLog("正在登陆...");
+        toastLog("正在登录...");
         sleep(3000);
+    }
+    var loginMsg = id("contentPanel").exists()
+    if(loginMsg) {
+        toastLog("登录验证失败...");
+        exit();
     }
     if(currentActivity() !== loginActivity) {
         toastLog("账号状态已登录");
@@ -87,70 +110,55 @@ function attendPage() {
     });
     app.startActivity(clockIn);
     toastLog("正在进入考勤页");
+    sleep(2000);
 }
 
 //打卡动作捕捉器
-function doClockBut(){
-    var clockInBut = text("上班打卡").visibleToUser(true).findOne(1000);
+function doClockBut() {
+    var clockInBut = text("上班打卡").visibleToUser(true).findOne();
     if(clockInBut !== null) {
         toastLog("准备上班卡");
         sleep(1000);
         clockInBut.click();
+    } else {
+        toastLog("打卡失败");
+        exit();
     }
-    var clockOutBut = text("下班打卡").visibleToUser(true).findOne(1000);
+    var clockOutBut = text("下班打卡").visibleToUser(true).findOne();
     if(clockOutBut !== null) {
         toastLog("准备打下班卡");
         sleep(1000);
         clockOutBut.click();
-    }
+    } else {
+        toastLog("打卡失败");
+        exit();
+}
+
+//节能器
+function missionEnd() {
+    sleep(2000);
+    classNameid("close_layout").findOne().click();
+    sleep(1000);
+    toastLog("结束打卡任务");
+    home();
+    sleep(1000);
+    device.cancelKeepingAwake();
+    exit();
 }
 
 /*====================任务开始====================*/
 
-//检查无障碍权限
-auto.waitFor("normal");
-
-//点亮屏幕15分钟
-if(!device.isScreenOn()) {
-    device.wakeUp();
-}
-device.keepScreenOn(900 * 1000);
-
-//上滑解锁屏幕
-swipe(500, 2000, 500, 1000, 220);
-sleep(1000);
-home();
-
-//非工作日直接退出
-if(dateDecide() !== "工作日") {
-    toastLog("今天不用上班啦");
-    sleep(1000);
-    exit();
-}
-
+//前置条件检查
+preCheck();
 //启动钉钉
 startDing();
-
 //自动登录
 signIn();
-
 //进入考勤页
 attendPage();
-
 //拟人化
 randomSleep();
-
 //打卡点击动作
 doClockBut();
-
-//打卡后返回桌面
-toastLog("结束钉钉任务");
-sleep(1000);
-id("close_text").findOne(1000).click();
-sleep(1000);
-home();
-sleep(1000);
-
-//熄灯节能退出
-device.cancelKeepingAwake();
-exit();
+//打卡后结束任务
+missionEnd();
